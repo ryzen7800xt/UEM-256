@@ -1,4 +1,4 @@
-﻿/*
+/*
  * UEM-256 - Lightweight string hash implemented in C.
  *
  * This is a practical 256-bit string fingerprint function for fast,
