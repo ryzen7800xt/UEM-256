@@ -1,13 +1,3 @@
-/*
- * UEM-256 SIMD - Hardware-accelerated hashing with AVX2.
- *
- * This version uses AVX2 (256-bit SIMD) instructions to parallelize
- * the mixing operations, providing significant speedup on modern CPUs.
- *
- * Compile with: -mavx2 (GCC/Clang) or /arch:AVX2 (MSVC)
- * Falls back to scalar implementation if AVX2 is not available.
- */
-
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -32,20 +22,21 @@ static inline __m256i rotl64_avx2(__m256i v, unsigned int shift)
     return _mm256_or_si256(left, right);
 }
 
-/* Process 4 blocks (32 bytes) in parallel using AVX2 */
+/* Process 64 bytes (4 x 16-byte blocks or 8 x 8-byte blocks) */
 static void uem256_mix_simd(__m256i state[4], const unsigned char *blocks)
 {
-    /* Load 4 consecutive 8-byte blocks */
-    __m256i block0 = _mm256_loadu_si256((__m256i *)blocks);
-    __m256i block1 = _mm256_loadu_si256((__m256i *)(blocks + 32));
+    // Load 64 bytes into 2 x 256-bit registers (32 bytes each)
+    __m256i b0 = _mm256_loadu_si256((const __m256i *)blocks);
+    __m256i b1 = _mm256_loadu_si256((const __m256i *)(blocks + 32));
 
-    /* Mix with state (simplified parallel version) */
-    state[0] = _mm256_xor_si256(state[0], block0);
-    state[1] = _mm256_xor_si256(state[1], block1);
+    // Initial mix
+    state[0] = _mm256_xor_si256(state[0], b0);
+    state[1] = _mm256_xor_si256(state[1], b1);
 
-    /* Parallel mixing round */
+    // Parallel mixing rounds
     for (int round = 0; round < 2; ++round)
     {
+        // Round 1
         state[0] = _mm256_add_epi64(state[0], state[1]);
         state[1] = rotl64_avx2(state[1], 13);
         state[1] = _mm256_xor_si256(state[1], state[0]);
@@ -54,6 +45,7 @@ static void uem256_mix_simd(__m256i state[4], const unsigned char *blocks)
         state[3] = rotl64_avx2(state[3], 16);
         state[3] = _mm256_xor_si256(state[3], state[2]);
 
+        // Round 2
         state[0] = _mm256_add_epi64(state[0], state[3]);
         state[3] = rotl64_avx2(state[3], 21);
         state[3] = _mm256_xor_si256(state[3], state[0]);
@@ -63,35 +55,27 @@ static void uem256_mix_simd(__m256i state[4], const unsigned char *blocks)
         state[1] = _mm256_xor_si256(state[1], state[2]);
     }
 
-    state[0] = _mm256_xor_si256(state[0], block0);
-    state[1] = _mm256_xor_si256(state[1], block1);
+    // Final XOR to make it non-reversible
+    state[0] = _mm256_xor_si256(state[0], b0);
+    state[1] = _mm256_xor_si256(state[1], b1);
 }
 
-/* Initialize context with SIMD state */
 void uem256_init_simd(uem256_ctx_simd *ctx)
 {
-    ctx->state[0] = _mm256_setr_epi64x(
-        0x6d6574615f6d6172ULL, 0x6d6574615f6d6172ULL,
-        0x6d6574615f6d6172ULL, 0x6d6574615f6d6172ULL);
-    ctx->state[1] = _mm256_setr_epi64x(
-        0x7465735f7169735fULL, 0x7465735f7169735fULL,
-        0x7465735f7169735fULL, 0x7465735f7169735fULL);
-    ctx->state[2] = _mm256_setr_epi64x(
-        0x6e69755f4d654f6dULL, 0x6e69755f4d654f6dULL,
-        0x6e69755f4d654f6dULL, 0x6e69755f4d654f6dULL);
-    ctx->state[3] = _mm256_setr_epi64x(
-        0x646f6d5f656e6f6dULL, 0x646f6d5f656e6f6dULL,
-        0x646f6d5f656e6f6dULL, 0x646f6d5f656e6f6dULL);
+    // Initialize with constants. Using _mm256_set1_epi64x for convenience
+    ctx->state[0] = _mm256_set1_epi64x(0x6d6574615f6d6172ULL);
+    ctx->state[1] = _mm256_set1_epi64x(0x7465735f7169735fULL);
+    ctx->state[2] = _mm256_set1_epi64x(0x6e69755f4d654f6dULL);
+    ctx->state[3] = _mm256_set1_epi64x(0x646f6d5f656e6f6dULL);
     ctx->length = 0;
     ctx->buffer_len = 0;
 }
 
-/* Update with SIMD acceleration */
 void uem256_update_simd(uem256_ctx_simd *ctx, const unsigned char *input, size_t length)
 {
     ctx->length += length;
 
-    /* Process 64-byte blocks (4 x 8-byte blocks) in parallel */
+    // Process 64-byte blocks
     while (length >= 64)
     {
         uem256_mix_simd(ctx->state, input);
@@ -99,30 +83,37 @@ void uem256_update_simd(uem256_ctx_simd *ctx, const unsigned char *input, size_t
         length -= 64;
     }
 
-    /* Handle remaining bytes with scalar fallback */
+    // Handle remaining bytes (buffer)
     if (length > 0)
     {
-        memcpy(ctx->buffer, input, length);
-        ctx->buffer_len = length;
+        memcpy(ctx->buffer + ctx->buffer_len, input, length);
+        ctx->buffer_len += length;
+        if (ctx->buffer_len >= 64)
+        {
+            // If buffered data reaches 64, mix it
+            uem256_mix_simd(ctx->state, ctx->buffer);
+            ctx->buffer_len = 0;
+        }
     }
 }
 
-/* Finalize SIMD hash */
 void uem256_final_simd(uem256_ctx_simd *ctx, unsigned char output[32])
 {
-    /* Extract first 64-bit value from SIMD state for output */
-    uint64_t state_scalar[4];
-    _mm256_storeu_si256((__m256i *)state_scalar, ctx->state[0]);
-    _mm256_storeu_si256((__m256i *)(state_scalar + 2), ctx->state[1]);
-
-    /* Store the result */
-    for (int i = 0; i < 4; ++i)
+    // Process remaining buffer with padding if necessary
+    if (ctx->buffer_len > 0)
     {
-        for (int j = 0; j < 8; ++j)
-        {
-            output[i * 8 + j] = (unsigned char)(state_scalar[i] >> (8 * j));
-        }
+        unsigned char padding[64] = {0};
+        memcpy(padding, ctx->buffer, ctx->buffer_len);
+        padding[ctx->buffer_len] = 0x80; // Simple padding
+        uem256_mix_simd(ctx->state, padding);
     }
+
+    // Extract state to output (Simplified)
+    // XOR state registers together to produce 256-bit output
+    __m256i final = _mm256_xor_si256(
+        _mm256_xor_si256(ctx->state[0], ctx->state[1]),
+        _mm256_xor_si256(ctx->state[2], ctx->state[3]));
+    _mm256_storeu_si256((__m256i *)output, final);
 }
 
 #else
