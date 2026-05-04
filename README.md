@@ -146,5 +146,11 @@ Minimal. Direct. Transparent.
 ## License
 
 MIT License
+<<<<<<< HEAD
+=======
+
+You are free to use, modify, and distribute this software with attribution.
+
+>>>>>>> 966d898d4c3b0a7fafd1aa4f3cb6b3ef29c21a24
 
 You are free to use, modify, and distribute this software with attribution.
