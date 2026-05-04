@@ -80,4 +80,17 @@ if ($exitCode -ne 0) {
 
 Write-Host "Running UEM-256 tests..."
 & $testExe
-exit $LASTEXITCODE
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "C tests failed."
+    exit $LASTEXITCODE
+}
+
+Write-Host "Running UEM-256 fuzz tests..."
+python (Join-Path $scriptDir "fuzz_uem256.py")
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "Fuzz tests failed."
+    exit $LASTEXITCODE
+}
+
+Write-Host "All tests passed."
+exit 0
