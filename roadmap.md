@@ -8,7 +8,7 @@
 - [x] Basic documentation
 
 ### Phase 2: Testing and Validation (Next 1-2 months)
-- [ ] Comprehensive test suite (collision tests, edge cases)
+- [x] Comprehensive test suite (collision tests, edge cases)
 - [ ] Performance benchmarks against other non-crypto hashes
 - [ ] Fuzz testing for robustness
 - [ ] Cross-platform compilation (Windows, Linux, macOS)
@@ -27,7 +27,7 @@
 
 ### Phase 5: Advanced Features (Future)
 - [ ] Streaming hash support for large files
-- [ ] Hardware acceleration (SIMD optimizations)
+- [x] Hardware acceleration (SIMD optimizations)
 - [ ] Alternative output formats (base64, etc.)
 - [ ] Integration with existing hash libraries
 
