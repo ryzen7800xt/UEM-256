@@ -108,6 +108,35 @@ cc src/encryption.c -o uem256
 ./uem256 "hello world"
 ```
 
+### Cross-platform runners
+
+macOS / Linux:
+
+```bash
+./tests/run_tests.sh
+```
+
+Windows PowerShell:
+
+```powershell
+tests\run_tests.ps1
+```
+
+If you have GNU Make installed, use:
+
+```bash
+make test
+```
+
+You can also run:
+
+```bash
+make lint
+make fmt
+```
+
+For full platform-specific instructions, see `docs/cross-platform.md`.
+
 ---
 
 ## Visual flow
@@ -146,11 +175,5 @@ Minimal. Direct. Transparent.
 ## License
 
 MIT License
-<<<<<<< HEAD
-=======
-
-You are free to use, modify, and distribute this software with attribution.
-
->>>>>>> 966d898d4c3b0a7fafd1aa4f3cb6b3ef29c21a24
 
 You are free to use, modify, and distribute this software with attribution.

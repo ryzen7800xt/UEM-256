@@ -86,7 +86,15 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 Write-Host "Running UEM-256 fuzz tests..."
-python (Join-Path $scriptDir "fuzz_uem256.py")
+$python = if (Get-Command python3.exe -ErrorAction SilentlyContinue) {
+    'python3'
+} elseif (Get-Command python.exe -ErrorAction SilentlyContinue) {
+    'python'
+} else {
+    Write-Error "Python 3 is not installed or not on PATH."
+    exit 1
+}
+& $python (Join-Path $scriptDir "fuzz_uem256.py")
 if ($LASTEXITCODE -ne 0) {
     Write-Error "Fuzz tests failed."
     exit $LASTEXITCODE
