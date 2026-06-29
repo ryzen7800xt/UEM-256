@@ -9,7 +9,7 @@
 
 ### Phase 2: Testing and Validation (Current WIP)
 - [x] Comprehensive test suite (collision tests, edge cases)
-- [ ] Performance benchmarks against other non-crypto hashes
+- [x] Performance benchmarks against other non-crypto hashes
 - [x] Fuzz testing for robustness
 - [x] Cross-platform compilation (Windows, Linux, macOS)
 
