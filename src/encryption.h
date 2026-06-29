@@ -2,7 +2,7 @@
 #define UEM256_ENCRYPTION_H
 
 #include <stddef.h>
-
+#include <stdint.h>
 #ifdef __cplusplus
 extern "C"
 {
