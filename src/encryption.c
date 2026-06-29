@@ -10,6 +10,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "encryption.h"
 
 static inline uint64_t rotl64(uint64_t value, unsigned int shift)
@@ -147,31 +148,113 @@ void uem256_hex(const unsigned char digest[32], char hex[65])
     hex[64] = '\0';
 }
 
-int main(int argc, char *argv[])
+static uint64_t fnv1a64(const unsigned char *data, size_t length)
 {
-    const char *text = NULL;
-    char stack_buffer[4096];
+    uint64_t hash = 0xcbf29ce484222325ULL;
+    for (size_t i = 0; i < length; ++i)
+    {
+        hash ^= data[i];
+        hash *= 0x100000001b3ULL;
+    }
+    return hash;
+}
 
-    if (argc >= 2)
+static uint64_t djb2(const unsigned char *data, size_t length)
+{
+    uint64_t hash = 5381ULL;
+    for (size_t i = 0; i < length; ++i)
     {
-        text = argv[1];
+        hash = ((hash << 5) + hash) ^ data[i];
     }
-    else
+    return hash;
+}
+
+static int run_scalar_benchmark(const unsigned char *data, size_t length, size_t iterations, double *elapsed_seconds)
+{
+    unsigned char digest[32];
+    clock_t start = clock();
+    for (size_t i = 0; i < iterations; ++i)
     {
-        if (!fgets(stack_buffer, sizeof(stack_buffer), stdin))
-        {
-            return 1;
-        }
-        size_t line_length = strcspn(stack_buffer, "\r\n");
-        stack_buffer[line_length] = '\0';
-        text = stack_buffer;
+        uem256_hash(data, length, digest);
     }
+    *elapsed_seconds = (double)(clock() - start) / CLOCKS_PER_SEC;
+    return 0;
+}
+
+static int run_non_crypto_benchmarks(const unsigned char *data, size_t length, size_t iterations, char *buffer, size_t buffer_size)
+{
+    uint64_t fnv_hash = 0;
+    uint64_t djb_hash = 0;
+    uint64_t uem_hash = 0;
+    double uem_time = 0.0;
+    double fnv_time = 0.0;
+    double djb_time = 0.0;
+
+    if (buffer == NULL || buffer_size == 0)
+        return -1;
+
+    run_scalar_benchmark(data, length, iterations, &uem_time);
+
+    clock_t start = clock();
+    for (size_t i = 0; i < iterations; ++i)
+    {
+        fnv_hash = fnv1a64(data, length);
+    }
+    fnv_time = (double)(clock() - start) / CLOCKS_PER_SEC;
+
+    start = clock();
+    for (size_t i = 0; i < iterations; ++i)
+    {
+        djb_hash = djb2(data, length);
+    }
+    djb_time = (double)(clock() - start) / CLOCKS_PER_SEC;
 
     unsigned char digest[32];
-    char hex[65];
-    uem256_hash((const unsigned char *)text, strlen(text), digest);
-    uem256_hex(digest, hex);
+    uem256_hash(data, length, digest);
+    uem_hash = ((uint64_t)digest[0]) |
+               ((uint64_t)digest[1] << 8) |
+               ((uint64_t)digest[2] << 16) |
+               ((uint64_t)digest[3] << 24) |
+               ((uint64_t)digest[4] << 32) |
+               ((uint64_t)digest[5] << 40) |
+               ((uint64_t)digest[6] << 48) |
+               ((uint64_t)digest[7] << 56);
 
-    printf("%s  %s\n", hex, text);
+    int written = snprintf(buffer, buffer_size,
+                           "UEM-256 benchmark (%zu iterations, %zu-byte payload):\n"
+                           "  UEM-256: %.6f s\n"
+                           "  FNV-1a:  %.6f s\n"
+                           "  djb2:    %.6f s\n"
+                           "  sample hashes: UEM-256=0x%016llx FNV-1a=0x%016llx djb2=0x%016llx\n",
+                           iterations,
+                           length,
+                           uem_time,
+                           fnv_time,
+                           djb_time,
+                           (unsigned long long)uem_hash,
+                           (unsigned long long)fnv_hash,
+                           (unsigned long long)djb_hash);
+
+    if (written < 0 || (size_t)written >= buffer_size)
+        return -1;
+
     return 0;
+}
+
+int uem256_run_benchmark(size_t iterations, size_t data_len, char *buffer, size_t buffer_size)
+{
+    unsigned char *data = (unsigned char *)malloc(data_len ? data_len : 1);
+    if (data == NULL)
+    {
+        return -1;
+    }
+
+    for (size_t i = 0; i < data_len; ++i)
+    {
+        data[i] = (unsigned char)((i * 37 + 11) % 251);
+    }
+
+    int rc = run_non_crypto_benchmarks(data, data_len, iterations, buffer, buffer_size);
+    free(data);
+    return rc;
 }

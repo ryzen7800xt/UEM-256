@@ -181,6 +181,16 @@ static void test_buffer_boundaries(void)
     check_digest_equal(baseline, digest, "boundary split updates");
 }
 
+static void test_benchmark_report(void)
+{
+    char report[512];
+    int rc = uem256_run_benchmark(8, 256, report, sizeof(report));
+    CHECK(rc == 0, "benchmark function");
+    CHECK(strstr(report, "UEM-256") != NULL, "benchmark report contains UEM-256");
+    CHECK(strstr(report, "FNV-1a") != NULL, "benchmark report contains FNV-1a");
+    CHECK(strstr(report, "djb2") != NULL, "benchmark report contains djb2");
+}
+
 int main(void)
 {
     printf("Running UEM-256 comprehensive tests...\n");
@@ -191,6 +201,7 @@ int main(void)
     test_hex_format();
     test_distinctness();
     test_buffer_boundaries();
+    test_benchmark_report();
     printf("PASS: all tests completed successfully.\n");
     return EXIT_SUCCESS;
 }

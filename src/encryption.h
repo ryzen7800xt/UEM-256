@@ -21,6 +21,7 @@ extern "C"
     void uem256_final(uem256_ctx *ctx, unsigned char output[32]);
     void uem256_hash(const unsigned char *input, size_t length, unsigned char output[32]);
     void uem256_hex(const unsigned char digest[32], char hex[65]);
+    int uem256_run_benchmark(size_t iterations, size_t data_len, char *buffer, size_t buffer_size);
 
     /* SIMD-accelerated versions (AVX2) with fallback for non-AVX2 systems */
     typedef struct
