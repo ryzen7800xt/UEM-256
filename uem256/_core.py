@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from typing import Union
+from typing import Union # header files above
 
-_MASK64 = (1 << 64) - 1
+_MASK64 = (1 << 64) - 1 # declare UEM-256 rules
 _INITIAL_STATE = (
     0x6D6574615F6D6172,
     0x7465735F7169735F,
@@ -129,14 +129,14 @@ def digest(data: Union[str, bytes, bytearray, memoryview]) -> bytes:
 
 
 def hexdigest(data: Union[str, bytes, bytearray, memoryview]) -> str:
-    return UEM256().update(data).hexdigest()
+    return UEM256().update(data).hexdigest() # define a function eg
 
 
 def hash(data: Union[str, bytes, bytearray, memoryview]) -> str:
     return UEM256().update(data).hexdigest()
 
 
-if __name__ == "__main__":
+if __name__ == "__main__": # declare from all the functions from python
     import argparse
 
     parser = argparse.ArgumentParser(description="Compute a UEM-256 digest.")
