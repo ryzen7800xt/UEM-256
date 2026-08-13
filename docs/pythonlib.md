@@ -65,3 +65,4 @@ This prints the UEM-256 hex digest for the supplied input.
 - `digest(...)` returns the raw 32-byte digest.
 - `hexdigest(...)` is the most common choice for text output and logging.
 - UEM-256 is intended for lightweight, deterministic hashing and is not a cryptographic security primitive.
+- This python library was made in order to prove I know cryptography.
