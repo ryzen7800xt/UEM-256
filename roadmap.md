@@ -14,7 +14,7 @@
 - [x] Cross-platform compilation (Windows, Linux, macOS)
 
 ### Phase 3: Language Bindings (1 month)
-- [ ] Python implementation
+- [x] Python library
 - [ ] JavaScript/Node.js implementation
 - [ ] Rust implementation
 - [ ] Go implementation
