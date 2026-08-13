@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "uem256"
+version = "0.1.0"
+description = "UEM-256 deterministic 256-bit hash library"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "UEM-256 contributors" }]
+keywords = ["hash", "uem256", "deterministic"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/ryzen7800xt/UEM-256"
+Repository = "https://github.com/ryzen7800xt/UEM-256"
+
+[tool.setuptools]
+packages = ["uem256"]

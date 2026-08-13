@@ -1,0 +1,11 @@
+LICENSE
+README.md
+pyproject.toml
+tests/test_python_library.py
+uem256/__init__.py
+uem256/__main__.py
+uem256/_core.py
+uem256.egg-info/PKG-INFO
+uem256.egg-info/SOURCES.txt
+uem256.egg-info/dependency_links.txt
+uem256.egg-info/top_level.txt
