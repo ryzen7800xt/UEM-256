@@ -137,6 +137,22 @@ make fmt
 
 For full platform-specific instructions, see `docs/cross-platform.md`.
 
+### JavaScript / Node.js
+
+A JavaScript implementation is available for Node.js and modern browsers:
+
+```bash
+npm install uem256
+```
+
+```javascript
+const { hash } = require('uem256');
+console.log(hash('hello world'));
+// Output: aceb882452062f9169f674aa6b03b8b326bada23ab625bc329b9c0775e536375
+```
+
+See [docs/javascript.md](docs/javascript.md) for full documentation, examples, and browser usage.
+
 ---
 
 ## Visual flow

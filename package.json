@@ -1,0 +1,33 @@
+{
+  "name": "uem256",
+  "version": "1.0.0",
+  "description": "UEM-256: Uniform Encryption Method 256-bit - A fast, deterministic string hashing method",
+  "main": "uem256.js",
+  "types": "uem256.d.ts",
+  "scripts": {
+    "test": "node tests/test_uem256.js",
+    "bench": "node tests/benchmark_uem256.js"
+  },
+  "keywords": [
+    "hash",
+    "uem256",
+    "hashing",
+    "fingerprint",
+    "deterministic"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/UEM-256"
+  },
+  "files": [
+    "uem256.js",
+    "uem256.d.ts",
+    "README.md",
+    "LICENSE"
+  ]
+}

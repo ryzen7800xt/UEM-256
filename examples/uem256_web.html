@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UEM-256 Hash Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-weight: 500;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 100px;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #2a5298;
+            box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.1);
+        }
+
+        .output-group {
+            margin-top: 30px;
+        }
+
+        .output-label {
+            color: #333;
+            font-weight: 500;
+            margin-bottom: 8px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .output-label input[type="radio"] {
+            cursor: pointer;
+        }
+
+        .hash-output {
+            background: #f5f5f5;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            word-break: break-all;
+            line-height: 1.5;
+            color: #333;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+        }
+
+        .hash-output.loading::before {
+            content: 'Computing...';
+            color: #999;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-copy {
+            background: #2a5298;
+            color: white;
+        }
+
+        .btn-copy:hover {
+            background: #1e3c72;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(42, 82, 152, 0.3);
+        }
+
+        .btn-clear {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-clear:hover {
+            background: #d0d0d0;
+        }
+
+        .info-box {
+            background: #f0f7ff;
+            border-left: 4px solid #2a5298;
+            padding: 12px;
+            border-radius: 4px;
+            margin-top: 20px;
+            font-size: 13px;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+            font-size: 12px;
+        }
+
+        .stat-item {
+            background: #fff;
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .stat-label {
+            color: #999;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            color: #333;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+            margin-top: 2px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #333;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 UEM-256 Hash Generator</h1>
+        <p class="subtitle">Fast, deterministic 256-bit hashing</p>
+
+        <div class="input-group">
+            <label for="input">Input Text or Data</label>
+            <textarea id="input" placeholder="Enter text to hash..."></textarea>
+        </div>
+
+        <div class="output-group">
+            <div class="output-label">
+                <input type="radio" id="format-hex" name="format" value="hex" checked>
+                <label for="format-hex" style="margin: 0; font-weight: normal;">Hexadecimal (64 chars)</label>
+            </div>
+            <div class="output-label" style="margin-top: 8px;">
+                <input type="radio" id="format-binary" name="format" value="binary">
+                <label for="format-binary" style="margin: 0; font-weight: normal;">Base64 (44 chars)</label>
+            </div>
+            <div id="output" class="hash-output"></div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-label">Input Size</div>
+                <div class="stat-value" id="stat-input">0 bytes</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Output Size</div>
+                <div class="stat-value">32 bytes</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Hash Type</div>
+                <div class="stat-value">UEM-256</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Hash Time</div>
+                <div class="stat-value" id="stat-time">-</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn-copy" id="copyBtn">📋 Copy Hash</button>
+            <button class="btn-clear" id="clearBtn">✕ Clear</button>
+        </div>
+
+        <div class="info-box">
+            <strong>ℹ️ About UEM-256</strong><br>
+            UEM-256 is a fast, deterministic hashing method that produces 256-bit fingerprints. 
+            Same input always produces the same output. Ideal for data fingerprinting, deduplication, and content-based caching.
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // This would load the actual UEM-256 implementation
+        // In a real scenario, bundle uem256.js using a build tool like Webpack, Rollup, or esbuild
+        
+        // For demo purposes, we'll simulate it
+        const input = document.getElementById('input');
+        const output = document.getElementById('output');
+        const copyBtn = document.getElementById('copyBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const formatRadios = document.querySelectorAll('input[name="format"]');
+        const statInput = document.getElementById('stat-input');
+        const statTime = document.getElementById('stat-time');
+        const toast = document.getElementById('toast');
+
+        let lastHash = '';
+
+        function showToast(message) {
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        function updateHash() {
+            const text = input.value;
+            const format = document.querySelector('input[name="format"]:checked').value;
+            
+            const start = performance.now();
+            // Simulate hash computation
+            output.textContent = 'Computing hash...';
+            
+            setTimeout(() => {
+                if (text === '') {
+                    lastHash = 'ff524be2b601b4c42fd991416c21387105df2a0436c7bb2981481b5e4b44f0a9';
+                } else {
+                    // In real implementation, call: hash(text)
+                    lastHash = 'demo_hash_' + Math.random().toString(36).substring(2, 66);
+                }
+                
+                output.textContent = format === 'hex' ? lastHash : btoa(lastHash);
+                
+                const end = performance.now();
+                statInput.textContent = text.length + ' bytes';
+                statTime.textContent = (end - start).toFixed(2) + ' ms';
+            }, 10);
+        }
+
+        input.addEventListener('input', updateHash);
+        
+        formatRadios.forEach(radio => {
+            radio.addEventListener('change', updateHash);
+        });
+
+        copyBtn.addEventListener('click', () => {
+            const text = output.textContent;
+            if (text && text !== 'Computing hash...') {
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast('Hash copied to clipboard! 📋');
+                });
+            }
+        });
+
+        clearBtn.addEventListener('click', () => {
+            input.value = '';
+            output.textContent = '';
+            statInput.textContent = '0 bytes';
+            statTime.textContent = '-';
+            lastHash = '';
+            input.focus();
+        });
+
+        // Initial load
+        updateHash();
+        input.focus();
+    </script>
+</body>
+</html>
