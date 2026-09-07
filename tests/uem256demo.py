@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
-"""
-ULTIMATE UEM-256 TEST SUITE
-Demonstrates all available functions and capabilities.
-"""
+
 
 import uem256
 import sys
