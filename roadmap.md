@@ -15,7 +15,7 @@
 
 ### Phase 3: Language Bindings (1 month)
 - [x] Python library
-- [ ] JavaScript/Node.js implementation
+- [x] JavaScript/Node.js implementation
 - [ ] Rust implementation
 - [ ] Go implementation
 

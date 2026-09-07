@@ -216,9 +216,9 @@ def test_comparison_with_different_inputs():
 
 def main():
     """Run all tests."""
-    print("\n" + "🔐 "*20)
+    print("\n" + "- "*20)
     print("ULTIMATE UEM-256 TEST SUITE - All Features & Functions")
-    print("🔐 "*20)
+    print("- "*20)
     
     try:
         test_one_shot_functions()
