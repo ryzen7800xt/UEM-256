@@ -70,7 +70,7 @@ test('update() API produces same result as direct hash', () => {
   const payload = 'The quick brown fox jumps over the lazy dog';
   const chunks = [1, 2, 7, 13, payload.length];
   
-  for (const chunkSize of chunks) {
+  for (const chunkSize of chunks) { // test the different possible chunk sizes for update()
     const ctx = new UEM256();
     for (let i = 0; i < payload.length; i += chunkSize) {
       ctx.update(payload.substring(i, i + chunkSize));

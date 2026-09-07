@@ -207,7 +207,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>🔐 UEM-256 Hash Generator</h1>
+        <h1>UEM-256 Hash Generator</h1>
         <p class="subtitle">Fast, deterministic 256-bit hashing</p>
 
         <div class="input-group">
@@ -247,24 +247,21 @@
         </div>
 
         <div class="controls">
-            <button class="btn-copy" id="copyBtn">📋 Copy Hash</button>
-            <button class="btn-clear" id="clearBtn">✕ Clear</button>
+            <button class="btn-copy" id="copyBtn"> Copy Hash</button>
+            <button class="btn-clear" id="clearBtn"> Clear</button>
         </div>
 
         <div class="info-box">
-            <strong>ℹ️ About UEM-256</strong><br>
+            <strong> About UEM-256</strong><br>
             UEM-256 is a fast, deterministic hashing method that produces 256-bit fingerprints. 
-            Same input always produces the same output. Ideal for data fingerprinting, deduplication, and content-based caching.
+            Same input always produces the same output. Ideal for data fingerprinting, deduplication, and content-based caching. In this situation, this is a simulated variant of UEM-256.
         </div>
     </div>
 
     <div class="toast" id="toast"></div>
 
     <script>
-        // This would load the actual UEM-256 implementation
-        // In a real scenario, bundle uem256.js using a build tool like Webpack, Rollup, or esbuild
-        
-        // For demo purposes, we'll simulate it
+      
         const input = document.getElementById('input');
         const output = document.getElementById('output');
         const copyBtn = document.getElementById('copyBtn');

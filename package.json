@@ -22,7 +22,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/UEM-256"
+    "url": "https://github.com/ryzen7800xt/UEM-256"
   },
   "files": [
     "uem256.js",
